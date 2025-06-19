@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-
-namespace DataAccess.Context.Common
+﻿namespace DataAccess.Context.Common
 {
     public static class DBConfig
     {
@@ -11,8 +9,8 @@ namespace DataAccess.Context.Common
             //var builder = new ConfigurationBuilder()
             //    .SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
-            var configuration = builder.Build();
-            ConnectionString = configuration.GetConnectionString("DefaultConnection");
+            //var configuration = builder.Build();
+            //ConnectionString = configuration.GetConnectionString("DefaultConnection");
         }
     }
 }

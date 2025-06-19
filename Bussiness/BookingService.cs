@@ -114,20 +114,6 @@ namespace Bussiness
             }
         }
 
-        public Customer Login(string username, string password)
-        {
-            try
-            {
-                var customers = _bookingRepository.GetAll();
-                // Có thể dùng Email hoặc Username tuỳ vào thiết kế của bạn
-                var customer = customers.FirstOrDefault(c => c.Email == username && c.Password == password);
-                return customer;
-            }
-            catch (Exception ex)
-            {
-                AppLogger.LogError(ex, "Error during login");
-                throw;
-            }
-        }
+
     }
 }

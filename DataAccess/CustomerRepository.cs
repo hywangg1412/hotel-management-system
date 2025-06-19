@@ -123,5 +123,10 @@ namespace DataAccess
                 throw;
             }
         }
+
+        public Customer Login(string email, string password)
+        {
+            return _customerList.FirstOrDefault(c => c.Email == email && c.Password == password);
+        }
     }
 }

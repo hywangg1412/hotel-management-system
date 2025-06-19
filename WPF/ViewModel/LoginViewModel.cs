@@ -1,19 +1,22 @@
-﻿using DataAccess.Context.Common;
+﻿using Bussiness;
+using DataAccess.Context.Common;
 using System.Windows.Input;
 using WPF.Commands;
 
 namespace WPF.ViewModel
 {
-    public class LoginViewModel : BaseViewModel
+    public class LoginViewModel
     {
         private readonly CustomerService _customerService;
         private string _email;
         private string _password;
         private string _loginResult;
 
-        public LoginViewModel(CustomerService customerService)
+        private MainWindowViewModel _mainWindowViewModel;
+        public LoginViewModel(MainWindowViewModel mainWindowViewModel)
         {
-            _customerService = customerService;
+            _mainWindowViewModel = mainWindowViewModel;
+            LoginCommand = new RelayCommand(_ => LoginCommand());
             LoginCommand = new RelayCommand(ExecuteLogin, CanExecuteLogin);
         }
 

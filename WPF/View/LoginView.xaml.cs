@@ -1,19 +1,14 @@
-﻿using System.Windows;
+﻿using System.Windows.Controls;
+using WPF.ViewModel;
 
 namespace WPF.View
 {
-    /// <summary>
-    /// Interaction logic for LoginView.xaml
-    /// </summary>
-    public partial class LoginView : Window
+    public partial class LoginView : UserControl
     {
-        public LoginView()
+        public LoginView(MainWindowViewModel mainVM)
         {
             InitializeComponent();
-
-            // Set up services
-
-            // Set up ViewModel
+            DataContext = new LoginViewModel(mainVM);
         }
     }
 }

@@ -12,4 +12,9 @@
     <None Remove="appsettings.json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Bussiness\Bussiness.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
+  </ItemGroup>
+
 </Project>

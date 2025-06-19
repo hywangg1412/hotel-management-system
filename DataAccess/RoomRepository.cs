@@ -59,7 +59,7 @@ namespace DataAccess
             try
             {
                 AppLogger.LogInformation($"Getting room by ID: {id}");
-                var room = _roomList.FirstOrDefault(r => r.RoomID == id);
+                var room = _roomList.FirstOrDefault(r => r.RoomId == id);
                 if (room == null)
                 {
                     AppLogger.LogWarning($"Room not found with ID: {id}");
@@ -97,11 +97,11 @@ namespace DataAccess
         {
             try
             {
-                var existingRoom = GetById(entity.RoomID);
+                var existingRoom = GetById(entity.RoomId);
                 if (existingRoom == null)
                 {
-                    AppLogger.LogWarning($"Room not found for update. ID: {entity.RoomID}");
-                    throw new KeyNotFoundException($"Room with ID {entity.RoomID} not found");
+                    AppLogger.LogWarning($"Room not found for update. ID: {entity.RoomId}");
+                    throw new KeyNotFoundException($"Room with ID {entity.RoomId} not found");
                 }
 
                 existingRoom.RoomNumber = entity.RoomNumber;
@@ -109,7 +109,7 @@ namespace DataAccess
                 existingRoom.RoomMaxCapacity = entity.RoomMaxCapacity;
                 existingRoom.RoomStatus = entity.RoomStatus;
                 existingRoom.RoomPricePerDate = entity.RoomPricePerDate;
-                existingRoom.RoomTypeID = entity.RoomTypeID;
+                existingRoom.RoomTypeId = entity.RoomTypeId;
 
                 AppLogger.LogInformation($"Room updated: {entity.RoomNumber}");
             }

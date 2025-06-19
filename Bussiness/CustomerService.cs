@@ -114,5 +114,28 @@ namespace Bussiness
                 throw;
             }
         }
+
+        public Customer Login(string email, string password)
+        {
+            try
+            {
+                AppLogger.LogInformation($"Login attempt for email: {email}");
+                var customer = _customerRepository.Login(email, password);
+                if (customer != null)
+                {
+                    AppLogger.LogInformation($"Login successful for email: {email}");
+                }
+                else
+                {
+                    AppLogger.LogWarning($"Login failed for email: {email}");
+                }
+                return customer;
+            }
+            catch (Exception ex)
+            {
+                AppLogger.LogError(ex, $"Error during login for email: {email}");
+                throw;
+            }
+        }
     }
 }

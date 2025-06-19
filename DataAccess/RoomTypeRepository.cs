@@ -59,7 +59,7 @@ namespace DataAccess
             try
             {
                 AppLogger.LogInformation($"Getting room type by ID: {id}");
-                var roomType = _roomTypeList.FirstOrDefault(rt => rt.RoomTypeID == id);
+                var roomType = _roomTypeList.FirstOrDefault(rt => rt.RoomTypeId == id);
                 if (roomType == null)
                 {
                     AppLogger.LogWarning($"RoomType not found with ID: {id}");
@@ -97,11 +97,11 @@ namespace DataAccess
         {
             try
             {
-                var existingRoomType = GetById(entity.RoomTypeID);
+                var existingRoomType = GetById(entity.RoomTypeId);
                 if (existingRoomType == null)
                 {
-                    AppLogger.LogWarning($"RoomType not found for update. ID: {entity.RoomTypeID}");
-                    throw new KeyNotFoundException($"RoomType with ID {entity.RoomTypeID} not found");
+                    AppLogger.LogWarning($"RoomType not found for update. ID: {entity.RoomTypeId}");
+                    throw new KeyNotFoundException($"RoomType with ID {entity.RoomTypeId} not found");
                 }
 
                 existingRoomType.RoomTypeName = entity.RoomTypeName;
