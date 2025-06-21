@@ -1,0 +1,14 @@
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\WPF.csproj.AssemblyReference.cache
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\View\LoginView.baml
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\View\MenuView.baml
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\View\SignUpView.baml
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\MainWindow.g.cs
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\View\AdminView.g.cs
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\View\CustomerView.g.cs
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\View\LoginView.g.cs
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\View\MenuView.g.cs
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\View\SignUpView.g.cs
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\App.g.cs
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\GeneratedInternalTypeHelper.g.cs
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\WPF_MarkupCompile.cache
+L:\Workspace\C#\HotelManagementSystem\WPF\obj\Debug\net8.0-windows\WPF_MarkupCompile.lref

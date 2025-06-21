@@ -1,11 +1,12 @@
 ﻿using Bussiness;
 using DataAccess.Context.Common;
+using System.ComponentModel;
 using System.Windows.Input;
 using WPF.Commands;
 
 namespace WPF.ViewModel
 {
-    public class LoginViewModel
+    public class LoginViewModel : INotifyPropertyChanged
     {
         private readonly CustomerService _customerService;
         private string _email;
@@ -16,8 +17,9 @@ namespace WPF.ViewModel
         public LoginViewModel(MainWindowViewModel mainWindowViewModel)
         {
             _mainWindowViewModel = mainWindowViewModel;
-            LoginCommand = new RelayCommand(_ => LoginCommand());
-            LoginCommand = new RelayCommand(ExecuteLogin, CanExecuteLogin);
+            _customerService = new CustomerService();
+            LoginCommand = new RelayCommand(_ => Login());
+            SignupCommand = new RelayCommand(_ => _mainWindowViewModel.ShowSignupView());
         }
 
         public string Email
@@ -50,33 +52,46 @@ namespace WPF.ViewModel
             }
         }
 
-        public ICommand LoginCommand { get; private set; }
+        public ICommand LoginCommand { get; }
+        public ICommand SignupCommand { get; }
 
-        private bool CanExecuteLogin(object parameter)
-        {
-            return !string.IsNullOrWhiteSpace(Email) && !string.IsNullOrWhiteSpace(Password);
-        }
-
-        private void ExecuteLogin(object parameter)
+        private void Login()
         {
             try
             {
-                var user = _customerService.Login(Email, Password);
-                if (user != null)
+                if (Email == Common.AppConfig.AdminEmail && Password == Common.AppConfig.AdminPassword)
                 {
-                    LoginResult = "Login successful!";
-                    // TODO: Navigate to main window
+                    LoginResult = "Admin login successful!";
+                    _mainWindowViewModel.ShowAdminDashboard();
                 }
                 else
                 {
-                    LoginResult = "Invalid email or password";
+                    // Try customer login
+                    var customer = _customerService.Login(Email, Password);
+                    if (customer != null)
+                    {
+                        LoginResult = "Customer login successful!";
+                        _mainWindowViewModel.ShowCustomerDashboard(customer);
+                    }
+                    else
+                    {
+                        LoginResult = "Invalid email or password!";
+                    }
                 }
+                OnPropertyChanged(nameof(LoginResult));
             }
             catch (Exception ex)
             {
                 LoginResult = "An error occurred during login";
-                AppLogger.LogError($"Log error: {ex.Message}");
+                AppLogger.LogError($"Login error: {ex.Message}");
             }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

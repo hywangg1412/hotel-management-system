@@ -1,0 +1,280 @@
+﻿<UserControl x:Class="WPF.View.AdminView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WPF.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1200">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2196F3" Padding="20,10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="FUMiniHotelSystem - Admin Dashboard" 
+                           FontSize="24" FontWeight="Bold" 
+                           Foreground="White" VerticalAlignment="Center"/>
+                <Button Content="Logout" Margin="20,0,0,0" Padding="15,5" 
+                        Background="#FF5722" Foreground="White" BorderThickness="0"
+                        Click="LogoutButton_Click"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Content -->
+        <TabControl Grid.Row="1" Margin="10">
+            
+            <!-- Customer Management Tab -->
+            <TabItem Header="Customer Management">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Search Section -->
+                    <Border Grid.Row="0" Background="#F5F5F5" Padding="10" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Search Customers:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Width="200" Text="{Binding CustomerSearchKeyword}" Margin="0,0,10,0"/>
+                            <Button Content="Search" Padding="10,5" Background="#4CAF50" Foreground="White" 
+                                    Command="{Binding SearchCustomersCommand}"/>
+                            <Button Content="Refresh" Padding="10,5" Background="#2196F3" Foreground="White" 
+                                    Command="{Binding RefreshDataCommand}" Margin="10,0,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Customer Form -->
+                    <Border Grid.Row="1" Background="#E3F2FD" Padding="10" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                <TextBlock Text="Customer Information" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Full Name:" Margin="0,5"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding NewCustomerFullName}" Margin="5"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Telephone:" Margin="0,5"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding NewCustomerTelephone}" Margin="5"/>
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Email:" Margin="0,5"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding NewCustomerEmail}" Margin="5"/>
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Birthday:" Margin="0,5"/>
+                                    <DatePicker Grid.Row="3" Grid.Column="1" SelectedDate="{Binding NewCustomerBirthday}" Margin="5"/>
+
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Password:" Margin="0,5"/>
+                                    <PasswordBox Grid.Row="4" Grid.Column="1" x:Name="CustomerPasswordBox" Margin="5"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <Button Content="Add Customer" Padding="15,8" Background="#4CAF50" Foreground="White" 
+                                        Command="{Binding AddCustomerCommand}" Margin="0,5"/>
+                                <Button Content="Update Customer" Padding="15,8" Background="#FF9800" Foreground="White" 
+                                        Command="{Binding UpdateCustomerCommand}" Margin="0,5"/>
+                                <Button Content="Delete Customer" Padding="15,8" Background="#F44336" Foreground="White" 
+                                        Command="{Binding DeleteCustomerCommand}" Margin="0,5"/>
+                                <Button Content="Clear Form" Padding="15,8" Background="#9E9E9E" Foreground="White" 
+                                        Command="{Binding ClearFormCommand}" Margin="0,5"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Customer List -->
+                    <DataGrid Grid.Row="2" ItemsSource="{Binding Customers}" 
+                              SelectedItem="{Binding SelectedCustomer}" 
+                              AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding UserID}" Width="50"/>
+                            <DataGridTextColumn Header="Full Name" Binding="{Binding FullName}" Width="150"/>
+                            <DataGridTextColumn Header="Telephone" Binding="{Binding Telephone}" Width="120"/>
+                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="200"/>
+                            <DataGridTextColumn Header="Birthday" Binding="{Binding Birthday}" Width="100"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- Room Management Tab -->
+            <TabItem Header="Room Management">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Search Section -->
+                    <Border Grid.Row="0" Background="#F5F5F5" Padding="10" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Search Rooms:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Width="200" Text="{Binding RoomSearchKeyword}" Margin="0,0,10,0"/>
+                            <Button Content="Search" Padding="10,5" Background="#4CAF50" Foreground="White" 
+                                    Command="{Binding SearchRoomsCommand}"/>
+                            <Button Content="Refresh" Padding="10,5" Background="#2196F3" Foreground="White" 
+                                    Command="{Binding RefreshDataCommand}" Margin="10,0,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Room Form -->
+                    <Border Grid.Row="1" Background="#E8F5E8" Padding="10" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                <TextBlock Text="Room Information" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Room Number:" Margin="0,5"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding NewRoomNumber}" Margin="5"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description:" Margin="0,5"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding NewRoomDescription}" Margin="5"/>
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Capacity:" Margin="0,5"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding NewRoomMaxCapacity}" Margin="5"/>
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Price Per Day:" Margin="0,5"/>
+                                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding NewRoomPricePerDate}" Margin="5"/>
+
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Room Type:" Margin="0,5"/>
+                                    <ComboBox Grid.Row="4" Grid.Column="1" ItemsSource="{Binding RoomTypes}" 
+                                              SelectedItem="{Binding SelectedRoomType}" Margin="5"
+                                              DisplayMemberPath="RoomTypeName"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <Button Content="Add Room" Padding="15,8" Background="#4CAF50" Foreground="White" 
+                                        Command="{Binding AddRoomCommand}" Margin="0,5"/>
+                                <Button Content="Update Room" Padding="15,8" Background="#FF9800" Foreground="White" 
+                                        Command="{Binding UpdateRoomCommand}" Margin="0,5"/>
+                                <Button Content="Delete Room" Padding="15,8" Background="#F44336" Foreground="White" 
+                                        Command="{Binding DeleteRoomCommand}" Margin="0,5"/>
+                                <Button Content="Clear Form" Padding="15,8" Background="#9E9E9E" Foreground="White" 
+                                        Command="{Binding ClearFormCommand}" Margin="0,5"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Room List -->
+                    <DataGrid Grid.Row="2" ItemsSource="{Binding Rooms}" 
+                              SelectedItem="{Binding SelectedRoom}" 
+                              AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding RoomId}" Width="50"/>
+                            <DataGridTextColumn Header="Room Number" Binding="{Binding RoomNumber}" Width="100"/>
+                            <DataGridTextColumn Header="Description" Binding="{Binding RoomDescription}" Width="200"/>
+                            <DataGridTextColumn Header="Max Capacity" Binding="{Binding RoomMaxCapacity}" Width="100"/>
+                            <DataGridTextColumn Header="Price/Day" Binding="{Binding RoomPricePerDate}" Width="100"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding RoomStatus}" Width="80"/>
+                            <DataGridTextColumn Header="Type ID" Binding="{Binding RoomTypeId}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- Reports Tab -->
+            <TabItem Header="Reports &amp; Statistics">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Report Controls -->
+                    <Border Grid.Row="0" Background="#FFF3E0" Padding="10" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Report Period:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="From:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <DatePicker SelectedDate="{Binding ReportStartDate}" Margin="0,0,10,0"/>
+                            <TextBlock Text="To:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <DatePicker SelectedDate="{Binding ReportEndDate}" Margin="0,0,10,0"/>
+                            <Button Content="Generate Report" Padding="15,8" Background="#9C27B0" Foreground="White" 
+                                    Command="{Binding GenerateReportCommand}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Statistics -->
+                    <Border Grid.Row="1" Background="#E1F5FE" Padding="10" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Background="#4CAF50" Padding="20,10" Margin="0,0,20,0">
+                                <StackPanel>
+                                    <TextBlock Text="Total Revenue" Foreground="White" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding TotalRevenue, StringFormat='${0:N2}'}" 
+                                               Foreground="White" FontSize="18"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#2196F3" Padding="20,10" Margin="0,0,20,0">
+                                <StackPanel>
+                                    <TextBlock Text="Total Bookings" Foreground="White" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding TotalBookings}" 
+                                               Foreground="White" FontSize="18"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Booking List -->
+                    <DataGrid Grid.Row="2" ItemsSource="{Binding Bookings}" 
+                              AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Booking ID" Binding="{Binding BookingID}" Width="80"/>
+                            <DataGridTextColumn Header="Customer ID" Binding="{Binding CustomerID}" Width="80"/>
+                            <DataGridTextColumn Header="Room ID" Binding="{Binding RoomID}" Width="80"/>
+                            <DataGridTextColumn Header="Start Date" Binding="{Binding StartDate, StringFormat='dd/MM/yyyy'}" Width="100"/>
+                            <DataGridTextColumn Header="End Date" Binding="{Binding EndDate, StringFormat='dd/MM/yyyy'}" Width="100"/>
+                            <DataGridTextColumn Header="Total Price" Binding="{Binding TotalPrice, StringFormat='${0:N2}'}" Width="100"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- Message Display -->
+        <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
+                Background="#FFEB3B" Padding="10" Margin="10">
+            <TextBlock Text="{Binding Message}" FontWeight="Bold" HorizontalAlignment="Center"/>
+        </Border>
+    </Grid>
+</UserControl>

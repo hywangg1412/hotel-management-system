@@ -1,0 +1,12 @@
+L:\Workspace\C#\HotelManagementSystem\Models\bin\Debug\net8.0\Models.deps.json
+L:\Workspace\C#\HotelManagementSystem\Models\bin\Debug\net8.0\Models.dll
+L:\Workspace\C#\HotelManagementSystem\Models\bin\Debug\net8.0\Models.pdb
+L:\Workspace\C#\HotelManagementSystem\Models\obj\Debug\net8.0\Models.GeneratedMSBuildEditorConfig.editorconfig
+L:\Workspace\C#\HotelManagementSystem\Models\obj\Debug\net8.0\Models.AssemblyInfoInputs.cache
+L:\Workspace\C#\HotelManagementSystem\Models\obj\Debug\net8.0\Models.AssemblyInfo.cs
+L:\Workspace\C#\HotelManagementSystem\Models\obj\Debug\net8.0\Models.csproj.CoreCompileInputs.cache
+L:\Workspace\C#\HotelManagementSystem\Models\obj\Debug\net8.0\Models.sourcelink.json
+L:\Workspace\C#\HotelManagementSystem\Models\obj\Debug\net8.0\Models.dll
+L:\Workspace\C#\HotelManagementSystem\Models\obj\Debug\net8.0\refint\Models.dll
+L:\Workspace\C#\HotelManagementSystem\Models\obj\Debug\net8.0\Models.pdb
+L:\Workspace\C#\HotelManagementSystem\Models\obj\Debug\net8.0\ref\Models.dll

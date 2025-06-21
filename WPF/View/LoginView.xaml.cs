@@ -5,10 +5,14 @@ namespace WPF.View
 {
     public partial class LoginView : UserControl
     {
-        public LoginView(MainWindowViewModel mainVM)
+        public LoginView(ViewModel.MainWindowViewModel mainWindowViewModel)
         {
             InitializeComponent();
-            DataContext = new LoginViewModel(mainVM);
+            DataContext = new ViewModel.LoginViewModel(mainWindowViewModel);
+        }
+        public LoginView()
+        {
+            InitializeComponent();
         }
     }
 }

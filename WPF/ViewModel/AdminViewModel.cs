@@ -1,0 +1,724 @@
+﻿using Bussiness;
+using Models;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Input;
+using WPF.Commands;
+using System.Linq;
+
+namespace WPF.ViewModel
+{
+    public class AdminViewModel : INotifyPropertyChanged
+    {
+        private readonly CustomerService _customerService;
+        private readonly RoomService _roomService;
+        private readonly RoomTypeService _roomTypeService;
+        private readonly BookingService _bookingService;
+
+        // Customer Management Properties
+        private ObservableCollection<Customer> _customers;
+        private Customer _selectedCustomer;
+        private string _customerSearchKeyword;
+
+        // Room Management Properties
+        private ObservableCollection<Room> _rooms;
+        private Room _selectedRoom;
+        private string _roomSearchKeyword;
+        private ObservableCollection<RoomType> _roomTypes;
+
+        // Booking/Report Properties
+        private ObservableCollection<Booking> _bookings;
+        private DateTime _reportStartDate = DateTime.Today.AddDays(-30);
+        private DateTime _reportEndDate = DateTime.Today;
+        private decimal _totalRevenue;
+        private int _totalBookings;
+
+        // Form Properties for Add/Edit
+        private string _newCustomerFullName;
+        private string _newCustomerTelephone;
+        private string _newCustomerEmail;
+        private DateOnly _newCustomerBirthday = DateOnly.FromDateTime(DateTime.Today);
+        private string _newCustomerPassword;
+
+        private string _newRoomNumber;
+        private string _newRoomDescription;
+        private int _newRoomMaxCapacity = 1;
+        private decimal _newRoomPricePerDate;
+        private RoomType _selectedRoomType;
+
+        // Message Property
+        private string _message;
+
+        public AdminViewModel()
+        {
+            _customerService = new CustomerService();
+            _roomService = new RoomService();
+            _roomTypeService = new RoomTypeService();
+            _bookingService = new BookingService();
+
+            LoadData();
+
+            // Initialize Commands
+            AddCustomerCommand = new RelayCommand(_ => AddCustomer(), _ => CanAddCustomer());
+            UpdateCustomerCommand = new RelayCommand(_ => UpdateCustomer(), _ => CanUpdateCustomer());
+            DeleteCustomerCommand = new RelayCommand(_ => DeleteCustomer(), _ => CanDeleteCustomer());
+            SearchCustomersCommand = new RelayCommand(_ => SearchCustomers());
+
+            AddRoomCommand = new RelayCommand(_ => AddRoom(), _ => CanAddRoom());
+            UpdateRoomCommand = new RelayCommand(_ => UpdateRoom(), _ => CanUpdateRoom());
+            DeleteRoomCommand = new RelayCommand(_ => DeleteRoom(), _ => CanDeleteRoom());
+            SearchRoomsCommand = new RelayCommand(_ => SearchRooms());
+
+            GenerateReportCommand = new RelayCommand(_ => GenerateReport());
+            RefreshDataCommand = new RelayCommand(_ => RefreshData());
+            ClearFormCommand = new RelayCommand(_ => ClearForm());
+        }
+
+        #region Customer Management Properties
+
+        public ObservableCollection<Customer> Customers
+        {
+            get => _customers;
+            set
+            {
+                _customers = value;
+                OnPropertyChanged(nameof(Customers));
+            }
+        }
+
+        public Customer SelectedCustomer
+        {
+            get => _selectedCustomer;
+            set
+            {
+                _selectedCustomer = value;
+                LoadCustomerToForm();
+                OnPropertyChanged(nameof(SelectedCustomer));
+            }
+        }
+
+        public string CustomerSearchKeyword
+        {
+            get => _customerSearchKeyword;
+            set
+            {
+                _customerSearchKeyword = value;
+                OnPropertyChanged(nameof(CustomerSearchKeyword));
+            }
+        }
+
+        #endregion
+
+        #region Room Management Properties
+
+        public ObservableCollection<Room> Rooms
+        {
+            get => _rooms;
+            set
+            {
+                _rooms = value;
+                OnPropertyChanged(nameof(Rooms));
+            }
+        }
+
+        public Room SelectedRoom
+        {
+            get => _selectedRoom;
+            set
+            {
+                _selectedRoom = value;
+                LoadRoomToForm();
+                OnPropertyChanged(nameof(SelectedRoom));
+            }
+        }
+
+        public string RoomSearchKeyword
+        {
+            get => _roomSearchKeyword;
+            set
+            {
+                _roomSearchKeyword = value;
+                OnPropertyChanged(nameof(RoomSearchKeyword));
+            }
+        }
+
+        public ObservableCollection<RoomType> RoomTypes
+        {
+            get => _roomTypes;
+            set
+            {
+                _roomTypes = value;
+                OnPropertyChanged(nameof(RoomTypes));
+            }
+        }
+
+        #endregion
+
+        #region Booking/Report Properties
+
+        public ObservableCollection<Booking> Bookings
+        {
+            get => _bookings;
+            set
+            {
+                _bookings = value;
+                OnPropertyChanged(nameof(Bookings));
+            }
+        }
+
+        public DateTime ReportStartDate
+        {
+            get => _reportStartDate;
+            set
+            {
+                _reportStartDate = value;
+                OnPropertyChanged(nameof(ReportStartDate));
+            }
+        }
+
+        public DateTime ReportEndDate
+        {
+            get => _reportEndDate;
+            set
+            {
+                _reportEndDate = value;
+                OnPropertyChanged(nameof(ReportEndDate));
+            }
+        }
+
+        public decimal TotalRevenue
+        {
+            get => _totalRevenue;
+            set
+            {
+                _totalRevenue = value;
+                OnPropertyChanged(nameof(TotalRevenue));
+            }
+        }
+
+        public int TotalBookings
+        {
+            get => _totalBookings;
+            set
+            {
+                _totalBookings = value;
+                OnPropertyChanged(nameof(TotalBookings));
+            }
+        }
+
+        #endregion
+
+        #region Form Properties
+
+        public string NewCustomerFullName
+        {
+            get => _newCustomerFullName;
+            set
+            {
+                _newCustomerFullName = value;
+                OnPropertyChanged(nameof(NewCustomerFullName));
+            }
+        }
+
+        public string NewCustomerTelephone
+        {
+            get => _newCustomerTelephone;
+            set
+            {
+                _newCustomerTelephone = value;
+                OnPropertyChanged(nameof(NewCustomerTelephone));
+            }
+        }
+
+        public string NewCustomerEmail
+        {
+            get => _newCustomerEmail;
+            set
+            {
+                _newCustomerEmail = value;
+                OnPropertyChanged(nameof(NewCustomerEmail));
+            }
+        }
+
+        public DateOnly NewCustomerBirthday
+        {
+            get => _newCustomerBirthday;
+            set
+            {
+                _newCustomerBirthday = value;
+                OnPropertyChanged(nameof(NewCustomerBirthday));
+            }
+        }
+
+        public string NewCustomerPassword
+        {
+            get => _newCustomerPassword;
+            set
+            {
+                _newCustomerPassword = value;
+                OnPropertyChanged(nameof(NewCustomerPassword));
+            }
+        }
+
+        public string NewRoomNumber
+        {
+            get => _newRoomNumber;
+            set
+            {
+                _newRoomNumber = value;
+                OnPropertyChanged(nameof(NewRoomNumber));
+            }
+        }
+
+        public string NewRoomDescription
+        {
+            get => _newRoomDescription;
+            set
+            {
+                _newRoomDescription = value;
+                OnPropertyChanged(nameof(NewRoomDescription));
+            }
+        }
+
+        public int NewRoomMaxCapacity
+        {
+            get => _newRoomMaxCapacity;
+            set
+            {
+                _newRoomMaxCapacity = value;
+                OnPropertyChanged(nameof(NewRoomMaxCapacity));
+            }
+        }
+
+        public decimal NewRoomPricePerDate
+        {
+            get => _newRoomPricePerDate;
+            set
+            {
+                _newRoomPricePerDate = value;
+                OnPropertyChanged(nameof(NewRoomPricePerDate));
+            }
+        }
+
+        public RoomType SelectedRoomType
+        {
+            get => _selectedRoomType;
+            set
+            {
+                _selectedRoomType = value;
+                OnPropertyChanged(nameof(SelectedRoomType));
+            }
+        }
+
+        #endregion
+
+        #region Message Property
+
+        public string Message
+        {
+            get => _message;
+            set
+            {
+                _message = value;
+                OnPropertyChanged(nameof(Message));
+            }
+        }
+
+        #endregion
+
+        #region Commands
+
+        public ICommand AddCustomerCommand { get; }
+        public ICommand UpdateCustomerCommand { get; }
+        public ICommand DeleteCustomerCommand { get; }
+        public ICommand SearchCustomersCommand { get; }
+
+        public ICommand AddRoomCommand { get; }
+        public ICommand UpdateRoomCommand { get; }
+        public ICommand DeleteRoomCommand { get; }
+        public ICommand SearchRoomsCommand { get; }
+
+        public ICommand GenerateReportCommand { get; }
+        public ICommand RefreshDataCommand { get; }
+        public ICommand ClearFormCommand { get; }
+
+        #endregion
+
+        #region Private Methods
+
+        private void LoadData()
+        {
+            try
+            {
+                LoadCustomers();
+                LoadRooms();
+                LoadRoomTypes();
+                LoadBookings();
+                GenerateReport();
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error loading data: {ex.Message}";
+            }
+        }
+
+        private void LoadCustomers()
+        {
+            var customers = _customerService.GetAll();
+            Customers = new ObservableCollection<Customer>(customers);
+        }
+
+        private void LoadRooms()
+        {
+            var rooms = _roomService.GetAll();
+            Rooms = new ObservableCollection<Room>(rooms);
+        }
+
+        private void LoadRoomTypes()
+        {
+            var roomTypes = _roomTypeService.GetAll();
+            RoomTypes = new ObservableCollection<RoomType>(roomTypes);
+        }
+
+        private void LoadBookings()
+        {
+            var bookings = _bookingService.GetAll();
+            Bookings = new ObservableCollection<Booking>(bookings);
+        }
+
+        private void LoadCustomerToForm()
+        {
+            if (SelectedCustomer != null)
+            {
+                NewCustomerFullName = SelectedCustomer.FullName;
+                NewCustomerTelephone = SelectedCustomer.Telephone;
+                NewCustomerEmail = SelectedCustomer.Email;
+                NewCustomerBirthday = SelectedCustomer.Birthday;
+                NewCustomerPassword = SelectedCustomer.Password;
+            }
+        }
+
+        private void LoadRoomToForm()
+        {
+            if (SelectedRoom != null)
+            {
+                NewRoomNumber = SelectedRoom.RoomNumber;
+                NewRoomDescription = SelectedRoom.RoomDescription;
+                NewRoomMaxCapacity = SelectedRoom.RoomMaxCapacity;
+                NewRoomPricePerDate = SelectedRoom.RoomPricePerDate;
+                SelectedRoomType = RoomTypes.FirstOrDefault(rt => rt.RoomTypeId == SelectedRoom.RoomTypeId);
+            }
+        }
+
+        private bool CanAddCustomer()
+        {
+            return !string.IsNullOrWhiteSpace(NewCustomerFullName) &&
+                   !string.IsNullOrWhiteSpace(NewCustomerTelephone) &&
+                   !string.IsNullOrWhiteSpace(NewCustomerEmail) &&
+                   !string.IsNullOrWhiteSpace(NewCustomerPassword);
+        }
+
+        private void AddCustomer()
+        {
+            try
+            {
+                var customer = new Customer
+                {
+                    FullName = NewCustomerFullName,
+                    Telephone = NewCustomerTelephone,
+                    Email = NewCustomerEmail,
+                    Birthday = NewCustomerBirthday,
+                    Password = NewCustomerPassword,
+                    Status = 1 // Active
+                };
+
+                _customerService.Add(customer);
+                LoadCustomers();
+                ClearCustomerForm();
+                Message = "Customer added successfully!";
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error adding customer: {ex.Message}";
+            }
+        }
+
+        private bool CanUpdateCustomer()
+        {
+            return SelectedCustomer != null && CanAddCustomer();
+        }
+
+        private void UpdateCustomer()
+        {
+            try
+            {
+                if (SelectedCustomer == null)
+                {
+                    Message = "Please select a customer to update!";
+                    return;
+                }
+
+                SelectedCustomer.FullName = NewCustomerFullName;
+                SelectedCustomer.Telephone = NewCustomerTelephone;
+                SelectedCustomer.Email = NewCustomerEmail;
+                SelectedCustomer.Birthday = NewCustomerBirthday;
+                SelectedCustomer.Password = NewCustomerPassword;
+
+                _customerService.Update(SelectedCustomer);
+                LoadCustomers();
+                ClearCustomerForm();
+                Message = "Customer updated successfully!";
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error updating customer: {ex.Message}";
+            }
+        }
+
+        private bool CanDeleteCustomer()
+        {
+            return SelectedCustomer != null;
+        }
+
+        private void DeleteCustomer()
+        {
+            try
+            {
+                if (SelectedCustomer == null)
+                {
+                    Message = "Please select a customer to delete!";
+                    return;
+                }
+
+                var result = MessageBox.Show("Are you sure you want to delete this customer?",
+                    "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _customerService.Delete(SelectedCustomer);
+                    LoadCustomers();
+                    ClearCustomerForm();
+                    Message = "Customer deleted successfully!";
+                }
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error deleting customer: {ex.Message}";
+            }
+        }
+
+        private void SearchCustomers()
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(CustomerSearchKeyword))
+                {
+                    LoadCustomers();
+                    return;
+                }
+
+                var customers = _customerService.Search(CustomerSearchKeyword);
+                Customers = new ObservableCollection<Customer>(customers);
+                Message = $"Found {customers.Count} customers matching '{CustomerSearchKeyword}'";
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error searching customers: {ex.Message}";
+            }
+        }
+
+        private bool CanAddRoom()
+        {
+            return !string.IsNullOrWhiteSpace(NewRoomNumber) &&
+                   !string.IsNullOrWhiteSpace(NewRoomDescription) &&
+                   NewRoomMaxCapacity > 0 &&
+                   NewRoomPricePerDate > 0 &&
+                   SelectedRoomType != null;
+        }
+
+        private void AddRoom()
+        {
+            try
+            {
+                var room = new Room
+                {
+                    RoomNumber = NewRoomNumber,
+                    RoomDescription = NewRoomDescription,
+                    RoomMaxCapacity = NewRoomMaxCapacity,
+                    RoomPricePerDate = NewRoomPricePerDate,
+                    RoomTypeId = SelectedRoomType.RoomTypeId,
+                    RoomStatus = "1" // Active
+                };
+
+                _roomService.Add(room);
+                LoadRooms();
+                ClearRoomForm();
+                Message = "Room added successfully!";
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error adding room: {ex.Message}";
+            }
+        }
+
+        private bool CanUpdateRoom()
+        {
+            return SelectedRoom != null && CanAddRoom();
+        }
+
+        private void UpdateRoom()
+        {
+            try
+            {
+                if (SelectedRoom == null)
+                {
+                    Message = "Please select a room to update!";
+                    return;
+                }
+
+                SelectedRoom.RoomNumber = NewRoomNumber;
+                SelectedRoom.RoomDescription = NewRoomDescription;
+                SelectedRoom.RoomMaxCapacity = NewRoomMaxCapacity;
+                SelectedRoom.RoomPricePerDate = NewRoomPricePerDate;
+                SelectedRoom.RoomTypeId = SelectedRoomType.RoomTypeId;
+
+                _roomService.Update(SelectedRoom);
+                LoadRooms();
+                ClearRoomForm();
+                Message = "Room updated successfully!";
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error updating room: {ex.Message}";
+            }
+        }
+
+        private bool CanDeleteRoom()
+        {
+            return SelectedRoom != null;
+        }
+
+        private void DeleteRoom()
+        {
+            try
+            {
+                if (SelectedRoom == null)
+                {
+                    Message = "Please select a room to delete!";
+                    return;
+                }
+
+                var result = MessageBox.Show("Are you sure you want to delete this room?",
+                    "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _roomService.Delete(SelectedRoom);
+                    LoadRooms();
+                    ClearRoomForm();
+                    Message = "Room deleted successfully!";
+                }
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error deleting room: {ex.Message}";
+            }
+        }
+
+        private void SearchRooms()
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(RoomSearchKeyword))
+                {
+                    LoadRooms();
+                    return;
+                }
+
+                var rooms = _roomService.Search(RoomSearchKeyword);
+                Rooms = new ObservableCollection<Room>(rooms);
+                Message = $"Found {rooms.Count} rooms matching '{RoomSearchKeyword}'";
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error searching rooms: {ex.Message}";
+            }
+        }
+
+        private void GenerateReport()
+        {
+            try
+            {
+                var bookings = _bookingService.GetAll();
+                var filteredBookings = bookings.Where(b => 
+                    b.StartDate >= ReportStartDate && 
+                    b.EndDate <= ReportEndDate)
+                    .OrderByDescending(b => b.TotalPrice)
+                    .ToList();
+
+                Bookings = new ObservableCollection<Booking>(filteredBookings);
+                TotalRevenue = filteredBookings.Sum(b => b.TotalPrice);
+                TotalBookings = filteredBookings.Count;
+
+                Message = $"Report generated for period {ReportStartDate:dd/MM/yyyy} to {ReportEndDate:dd/MM/yyyy}. " +
+                         $"Total Revenue: ${TotalRevenue:N2}, Total Bookings: {TotalBookings}";
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error generating report: {ex.Message}";
+            }
+        }
+
+        private void RefreshData()
+        {
+            LoadData();
+            Message = "Data refreshed successfully!";
+        }
+
+        private void ClearForm()
+        {
+            ClearCustomerForm();
+            ClearRoomForm();
+        }
+
+        private void ClearCustomerForm()
+        {
+            NewCustomerFullName = string.Empty;
+            NewCustomerTelephone = string.Empty;
+            NewCustomerEmail = string.Empty;
+            NewCustomerBirthday = DateOnly.FromDateTime(DateTime.Today);
+            NewCustomerPassword = string.Empty;
+            SelectedCustomer = null;
+        }
+
+        private void ClearRoomForm()
+        {
+            NewRoomNumber = string.Empty;
+            NewRoomDescription = string.Empty;
+            NewRoomMaxCapacity = 1;
+            NewRoomPricePerDate = 0;
+            SelectedRoomType = null;
+            SelectedRoom = null;
+        }
+
+        // Method to clear password box (will be called from View)
+        public void ClearPasswordBox()
+        {
+            NewCustomerPassword = string.Empty;
+        }
+
+        #endregion
+
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
+    }
+}

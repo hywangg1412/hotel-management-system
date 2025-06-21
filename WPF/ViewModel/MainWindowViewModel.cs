@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using WPF.View;
+using Models;
 
 namespace WPF.ViewModel
 {
@@ -13,21 +15,35 @@ namespace WPF.ViewModel
             set { _currentView = value; OnPropertyChanged(); }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         public MainWindowViewModel()
         {
-            CurrentView = new LoginView();
+            CurrentView = new MenuView(this);
         }
 
         public void ShowLoginView()
         {
-            CurrentView = new
+            CurrentView = new LoginView(this);
         }
 
+        public void ShowSignupView()
+        {
+            CurrentView = new SignupView(this);
+        }
+
+        public void ShowAdminDashboard()
+        {
+            CurrentView = new AdminView(this);
+        }
+
+        public void ShowCustomerDashboard(Customer customer)
+        {
+            CurrentView = new CustomerView(this, customer);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
     }
 }

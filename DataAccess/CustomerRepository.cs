@@ -1,4 +1,5 @@
-﻿using DataAccess.Context.Common;
+﻿using Common;
+using DataAccess.Context.Common;
 using DataAccess.Interfaces;
 using Models;
 
@@ -10,7 +11,21 @@ namespace DataAccess
 
         public CustomerRepository()
         {
-            _customerList = new List<Customer>();
+            if (_customerList == null)
+            {
+                _customerList = new List<Customer>();
+                var defaultUser = new Customer
+                {
+                    UserID = 1,
+                    Email = AppConfig.UserEmail,
+                    Password = AppConfig.UserPassword,
+                    FullName = "Default User",
+                    Telephone = "1234567890",
+                    Birthday = new DateOnly(2000, 1, 1),
+                    Status = 1
+                };
+                _customerList.Add(defaultUser);
+            }
         }
         public void Add(Customer entity)
         {
