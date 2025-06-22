@@ -29,6 +29,9 @@ namespace WPF.ViewModel
 
         // Booking/Report Properties
         private ObservableCollection<Booking> _bookings;
+        private ObservableCollection<Booking> _reportBookings;
+        private Booking _selectedBooking;
+        private string _bookingSearchKeyword;
         private DateTime _reportStartDate = DateTime.Today.AddDays(-30);
         private DateTime _reportEndDate = DateTime.Today;
         private decimal _totalRevenue;
@@ -70,7 +73,12 @@ namespace WPF.ViewModel
             DeleteRoomCommand = new RelayCommand(_ => DeleteRoom(), _ => CanDeleteRoom());
             SearchRoomsCommand = new RelayCommand(_ => SearchRooms());
 
+            UpdateBookingCommand = new RelayCommand(_ => UpdateBooking(), _ => CanUpdateBooking());
+            DeleteBookingCommand = new RelayCommand(_ => DeleteBooking(), _ => CanDeleteBooking());
+            SearchBookingsCommand = new RelayCommand(_ => SearchBookings());
+
             GenerateReportCommand = new RelayCommand(_ => GenerateReport());
+            CheckOutCommand = new RelayCommand(_ => CheckOut(), _ => CanCheckOut());
             RefreshDataCommand = new RelayCommand(_ => RefreshData());
         }
 
@@ -93,6 +101,8 @@ namespace WPF.ViewModel
             {
                 _selectedCustomer = value;
                 OnPropertyChanged(nameof(SelectedCustomer));
+                (UpdateCustomerCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (DeleteCustomerCommand as RelayCommand)?.RaiseCanExecuteChanged();
             }
         }
 
@@ -127,6 +137,8 @@ namespace WPF.ViewModel
             {
                 _selectedRoom = value;
                 OnPropertyChanged(nameof(SelectedRoom));
+                (UpdateRoomCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (DeleteRoomCommand as RelayCommand)?.RaiseCanExecuteChanged();
             }
         }
 
@@ -161,6 +173,39 @@ namespace WPF.ViewModel
             {
                 _bookings = value;
                 OnPropertyChanged(nameof(Bookings));
+            }
+        }
+
+        public ObservableCollection<Booking> ReportBookings
+        {
+            get => _reportBookings;
+            set
+            {
+                _reportBookings = value;
+                OnPropertyChanged(nameof(ReportBookings));
+            }
+        }
+
+        public Booking SelectedBooking
+        {
+            get => _selectedBooking;
+            set
+            {
+                _selectedBooking = value;
+                OnPropertyChanged(nameof(SelectedBooking));
+                (CheckOutCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (UpdateBookingCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (DeleteBookingCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            }
+        }
+
+        public string BookingSearchKeyword
+        {
+            get => _bookingSearchKeyword;
+            set
+            {
+                _bookingSearchKeyword = value;
+                OnPropertyChanged(nameof(BookingSearchKeyword));
             }
         }
 
@@ -336,7 +381,12 @@ namespace WPF.ViewModel
         public ICommand DeleteRoomCommand { get; }
         public ICommand SearchRoomsCommand { get; }
 
+        public ICommand UpdateBookingCommand { get; }
+        public ICommand DeleteBookingCommand { get; }
+        public ICommand SearchBookingsCommand { get; }
+
         public ICommand GenerateReportCommand { get; }
+        public ICommand CheckOutCommand { get; }
         public ICommand RefreshDataCommand { get; }
 
         #endregion
@@ -613,6 +663,86 @@ namespace WPF.ViewModel
             }
         }
 
+        private bool CanUpdateBooking()
+        {
+            return SelectedBooking != null;
+        }
+
+        private void UpdateBooking()
+        {
+            try
+            {
+                if (!CanUpdateBooking()) return;
+
+                var dialog = new View.BookingDialog();
+                var viewModel = new BookingDialogViewModel(SelectedBooking);
+                dialog.DataContext = viewModel;
+                dialog.Owner = Application.Current.MainWindow;
+
+                dialog.ShowDialog();
+                
+                if (viewModel.DialogResult == true)
+                {
+                    _bookingService.Update(viewModel.Booking);
+                    Message = $"Booking ID {viewModel.Booking.BookingID} updated successfully.";
+                    LoadBookings(); // Refresh the list
+                }
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error updating booking: {ex.Message}";
+            }
+        }
+
+        private bool CanDeleteBooking()
+        {
+            return SelectedBooking != null;
+        }
+
+        private void DeleteBooking()
+        {
+            try
+            {
+                if (!CanDeleteBooking()) return;
+
+                var result = MessageBox.Show(
+                    $"Are you sure you want to delete booking ID '{SelectedBooking.BookingID}'?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.No) return;
+
+                _bookingService.Delete(SelectedBooking);
+                Message = $"Booking ID {SelectedBooking.BookingID} deleted successfully.";
+                LoadBookings();
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error deleting booking: {ex.Message}";
+            }
+        }
+
+        private void SearchBookings()
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(BookingSearchKeyword))
+                {
+                    LoadBookings();
+                }
+                else
+                {
+                    var bookings = _bookingService.Search(BookingSearchKeyword);
+                    Bookings = new ObservableCollection<Booking>(bookings);
+                }
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error searching bookings: {ex.Message}";
+            }
+        }
+
         private void GenerateReport()
         {
             try
@@ -620,7 +750,7 @@ namespace WPF.ViewModel
                 var bookings = _bookingService.GetBookingsByDateRange(ReportStartDate, ReportEndDate);
                 var sortedBookings = bookings.OrderByDescending(b => b.TotalPrice).ToList();
                 
-                Bookings = new ObservableCollection<Booking>(sortedBookings);
+                ReportBookings = new ObservableCollection<Booking>(sortedBookings);
                 TotalRevenue = sortedBookings.Sum(b => b.TotalPrice);
                 TotalBookings = sortedBookings.Count;
 
@@ -629,6 +759,47 @@ namespace WPF.ViewModel
             catch (Exception ex)
             {
                 Message = $"Error generating report: {ex.Message}";
+            }
+        }
+
+        private bool CanCheckOut()
+        {
+            return SelectedBooking != null && "Confirmed".Equals(SelectedBooking.Status, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void CheckOut()
+        {
+            try
+            {
+                if (!CanCheckOut()) return;
+
+                var result = MessageBox.Show(
+                    $"Are you sure you want to check out booking ID '{SelectedBooking.BookingID}'?",
+                    "Confirm Check-out",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.No) return;
+
+                // Update booking status
+                var bookingToUpdate = _bookingService.GetById(SelectedBooking.BookingID);
+                bookingToUpdate.Status = "Completed";
+                _bookingService.Update(bookingToUpdate);
+
+                // Update room status
+                var roomToUpdate = _roomService.GetById(bookingToUpdate.RoomID);
+                if (roomToUpdate != null)
+                {
+                    roomToUpdate.RoomStatus = "Available";
+                    _roomService.Update(roomToUpdate);
+                }
+
+                Message = $"Booking ID {bookingToUpdate.BookingID} checked out successfully.";
+                RefreshData();
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error during check-out: {ex.Message}";
             }
         }
 

@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
 L:\Workspace\C#\HotelManagementSystem\WPF\App.xaml
-8869656214
+9-127230719
 
-20-1418296264
+23911352172
 220449943850
-MainWindow.xaml;View\AdminView.xaml;View\CustomerDialog.xaml;View\CustomerView.xaml;View\LoginView.xaml;View\MenuView.xaml;View\RoomDialog.xaml;View\SignUpView.xaml;
+MainWindow.xaml;View\AdminView.xaml;View\BookingDialog.xaml;View\CustomerDialog.xaml;View\CustomerView.xaml;View\LoginView.xaml;View\MenuView.xaml;View\RoomDialog.xaml;View\SignUpView.xaml;
 
 False
 

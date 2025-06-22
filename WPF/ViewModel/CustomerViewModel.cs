@@ -19,7 +19,7 @@ namespace WPF.ViewModel
         private string _fullName;
         private string _telephone;
         private string _email;
-        private DateOnly _birthday;
+        private DateTime? _birthday;
         private string _password;
         private string _confirmPassword;
         private string _message;
@@ -97,7 +97,7 @@ namespace WPF.ViewModel
             }
         }
 
-        public DateOnly Birthday
+        public DateTime? Birthday
         {
             get => _birthday;
             set
@@ -240,7 +240,14 @@ namespace WPF.ViewModel
                 FullName = _currentCustomer.FullName;
                 Telephone = _currentCustomer.Telephone;
                 Email = _currentCustomer.Email;
-                Birthday = _currentCustomer.Birthday;
+                if (_currentCustomer.Birthday != default)
+                {
+                    Birthday = _currentCustomer.Birthday.ToDateTime(TimeOnly.MinValue);
+                }
+                else
+                {
+                    Birthday = null;
+                }
                 Password = _currentCustomer.Password;
                 ConfirmPassword = _currentCustomer.Password;
             }
@@ -264,7 +271,7 @@ namespace WPF.ViewModel
             try
             {
                 var allRooms = _roomService.GetAll();
-                var availableRooms = allRooms.Where(r => r.RoomStatus == "1").ToList(); // Active rooms
+                var availableRooms = allRooms.Where(r => "Available".Equals(r.RoomStatus, StringComparison.OrdinalIgnoreCase)).ToList();
                 AvailableRooms = new ObservableCollection<Room>(availableRooms);
             }
             catch (Exception ex)
@@ -296,7 +303,10 @@ namespace WPF.ViewModel
                 _currentCustomer.FullName = FullName;
                 _currentCustomer.Telephone = Telephone;
                 _currentCustomer.Email = Email;
-                _currentCustomer.Birthday = Birthday;
+                if (Birthday.HasValue)
+                {
+                    _currentCustomer.Birthday = DateOnly.FromDateTime(Birthday.Value);
+                }
                 _currentCustomer.Password = Password;
 
                 _customerService.Update(_currentCustomer);
@@ -418,10 +428,11 @@ namespace WPF.ViewModel
                     return;
                 }
 
-                var allBookings = _bookingService.GetAll();
-                var customerBookings = allBookings.Where(b => b.CustomerID == _currentCustomer.UserID).ToList();
+                var customerBookings = _bookingService.GetBookingsByCustomer(_currentCustomer.UserID);
 
                 var filteredBookings = customerBookings.Where(b =>
+                    b.BookingID.ToString().Contains(SearchKeyword) ||
+                    b.RoomID.ToString().Contains(SearchKeyword) ||
                     b.Status.Contains(SearchKeyword, StringComparison.OrdinalIgnoreCase) ||
                     b.TotalPrice.ToString().Contains(SearchKeyword) ||
                     b.StartDate.ToString("dd/MM/yyyy").Contains(SearchKeyword) ||

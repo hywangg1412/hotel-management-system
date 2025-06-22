@@ -136,6 +136,61 @@
                 </Grid>
             </TabItem>
 
+            <!-- Booking Management Tab -->
+            <TabItem Header="Booking Management">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Search and Action Section -->
+                    <Border Grid.Row="0" Background="#F5F5F5" Padding="10" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Search Section -->
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <TextBlock Text="Search Bookings:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBox Width="200" Text="{Binding BookingSearchKeyword}" Margin="0,0,10,0"/>
+                                <Button Content="Search" Padding="10,5" Background="#4CAF50" Foreground="White"
+                                        Command="{Binding SearchBookingsCommand}"/>
+                                <Button Content="Refresh" Padding="10,5" Background="#2196F3" Foreground="White"
+                                        Command="{Binding RefreshDataCommand}" Margin="10,0,0,0"/>
+                            </StackPanel>
+
+                            <!-- Action Buttons -->
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Content="Update Booking" Padding="15,8" Background="#FF9800" Foreground="White"
+                                        Command="{Binding UpdateBookingCommand}" Margin="0,0,10,0"/>
+                                <Button Content="Delete Booking" Padding="15,8" Background="#F44336" Foreground="White"
+                                        Command="{Binding DeleteBookingCommand}" Margin="0,0,10,0"/>
+                                <Button Content="Check-out" Padding="15,8" Background="#009688" Foreground="White" 
+                                        Command="{Binding CheckOutCommand}" Margin="10,0,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Booking List -->
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding Bookings}"
+                              SelectedItem="{Binding SelectedBooking}"
+                              AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Booking ID" Binding="{Binding BookingID}" Width="80"/>
+                            <DataGridTextColumn Header="Customer ID" Binding="{Binding CustomerID}" Width="80"/>
+                            <DataGridTextColumn Header="Room ID" Binding="{Binding RoomID}" Width="80"/>
+                            <DataGridTextColumn Header="Start Date" Binding="{Binding StartDate, StringFormat='dd/MM/yyyy'}" Width="100"/>
+                            <DataGridTextColumn Header="End Date" Binding="{Binding EndDate, StringFormat='dd/MM/yyyy'}" Width="100"/>
+                            <DataGridTextColumn Header="Total Price" Binding="{Binding TotalPrice, StringFormat='${0:N2}'}" Width="100"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
             <!-- Reports Tab -->
             <TabItem Header="Reports &amp; Statistics">
                 <Grid Margin="10">
@@ -178,8 +233,8 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Booking List -->
-                    <DataGrid Grid.Row="2" ItemsSource="{Binding Bookings}" 
+                    <!-- Booking List for Report -->
+                    <DataGrid Grid.Row="2" ItemsSource="{Binding ReportBookings}" 
                               AutoGenerateColumns="False" IsReadOnly="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Booking ID" Binding="{Binding BookingID}" Width="80"/>

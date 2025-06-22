@@ -4,8 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WPF.View"
+             xmlns:converters="clr-namespace:WPF.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1200">
+    <UserControl.Resources>
+        <converters:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -146,7 +150,8 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <!-- Create New Booking -->
+                            <StackPanel Grid.Column="0" Margin="0,0,20,0">
                                 <TextBlock Text="Create New Booking" FontWeight="Bold" Margin="0,0,0,10"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -159,20 +164,21 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Start Date:" Margin="0,5"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Start Date:" VerticalAlignment="Center" Margin="0,5"/>
                                     <DatePicker Grid.Row="0" Grid.Column="1" SelectedDate="{Binding StartDate}" Margin="5"/>
 
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="End Date:" Margin="0,5"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="End Date:" VerticalAlignment="Center" Margin="0,5"/>
                                     <DatePicker Grid.Row="1" Grid.Column="1" SelectedDate="{Binding EndDate}" Margin="5"/>
 
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Select Room:" Margin="0,5"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Select Room:" VerticalAlignment="Center" Margin="0,5"/>
                                     <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{Binding AvailableRooms}" 
                                               SelectedItem="{Binding SelectedRoom}" Margin="5"
                                               DisplayMemberPath="RoomNumber"/>
                                 </Grid>
                             </StackPanel>
 
-                            <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                            <!-- Room Details -->
+                            <StackPanel Grid.Column="1" Margin="0,0,20,0" IsEnabled="{Binding SelectedRoom, Converter={StaticResource NullToBooleanConverter}}">
                                 <TextBlock Text="Room Details" FontWeight="Bold" Margin="0,0,0,10"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -186,20 +192,21 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Room Number:" Margin="0,5"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Room Number:" Margin="0,5" FontWeight="SemiBold"/>
                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedRoom.RoomNumber}" Margin="5"/>
 
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description:" Margin="0,5"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedRoom.RoomDescription}" Margin="5"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Description:" Margin="0,5" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedRoom.RoomDescription}" Margin="5" TextWrapping="Wrap"/>
 
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Capacity:" Margin="0,5"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Capacity:" Margin="0,5" FontWeight="SemiBold"/>
                                     <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedRoom.RoomMaxCapacity}" Margin="5"/>
 
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Price Per Day:" Margin="0,5"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Price Per Day:" Margin="0,5" FontWeight="SemiBold"/>
                                     <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedRoom.RoomPricePerDate, StringFormat='${0:N2}'}" Margin="5"/>
                                 </Grid>
                             </StackPanel>
 
+                            <!-- Action Buttons -->
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                 <Button Content="Create Booking" Padding="15,8" Background="#4CAF50" Foreground="White" 
                                         Command="{Binding CreateBookingCommand}" Margin="0,5"/>
