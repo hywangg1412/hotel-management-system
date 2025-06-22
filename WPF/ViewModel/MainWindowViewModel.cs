@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
+﻿using Models;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using WPF.View;
-using Models;
 
 namespace WPF.ViewModel
 {
@@ -27,7 +27,7 @@ namespace WPF.ViewModel
 
         public void ShowSignupView()
         {
-            CurrentView = new SignupView(this);
+            CurrentView = new SignUpView(this);
         }
 
         public void ShowAdminDashboard()

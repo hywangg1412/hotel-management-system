@@ -10,7 +10,38 @@ namespace DataAccess
 
         public RoomTypeRepository()
         {
-            _roomTypeList = new List<RoomType>();
+            if (_roomTypeList == null)
+            {
+                _roomTypeList = new List<RoomType>();
+                
+                // Add sample data
+                var sampleRoomTypes = new List<RoomType>
+                {
+                    new RoomType
+                    {
+                        RoomTypeId = 1,
+                        RoomTypeName = "Standard",
+                        TypeDescription = "Basic room with essential amenities",
+                        TypeNote = "Suitable for budget travelers"
+                    },
+                    new RoomType
+                    {
+                        RoomTypeId = 2,
+                        RoomTypeName = "Deluxe",
+                        TypeDescription = "Premium room with enhanced amenities",
+                        TypeNote = "Popular choice for business travelers"
+                    },
+                    new RoomType
+                    {
+                        RoomTypeId = 3,
+                        RoomTypeName = "Suite",
+                        TypeDescription = "Luxury suite with premium amenities",
+                        TypeNote = "Perfect for special occasions"
+                    }
+                };
+                
+                _roomTypeList.AddRange(sampleRoomTypes);
+            }
         }
         public void Add(RoomType entity)
         {

@@ -1,0 +1,62 @@
+<Window x:Class="WPF.View.RoomDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding DialogTitle}" Height="500" Width="450"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="{Binding DialogTitle}" 
+                   FontSize="20" FontWeight="Bold" 
+                   HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+        <!-- Form -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,20">
+            <TextBlock Text="Room Number:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <TextBox Text="{Binding Room.RoomNumber, UpdateSourceTrigger=PropertyChanged}" 
+                     Margin="0,0,0,15" Padding="8"/>
+
+            <TextBlock Text="Description:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <TextBox Text="{Binding Room.RoomDescription, UpdateSourceTrigger=PropertyChanged}" 
+                     Margin="0,0,0,15" Padding="8" Height="60" 
+                     TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+
+            <TextBlock Text="Max Capacity:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <TextBox Text="{Binding Room.RoomMaxCapacity, UpdateSourceTrigger=PropertyChanged}" 
+                     Margin="0,0,0,15" Padding="8"/>
+
+            <TextBlock Text="Price Per Day:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <TextBox Text="{Binding Room.RoomPricePerDate, UpdateSourceTrigger=PropertyChanged}" 
+                     Margin="0,0,0,15" Padding="8"/>
+
+            <TextBlock Text="Room Type:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ComboBox ItemsSource="{Binding RoomTypes}" 
+                      SelectedItem="{Binding SelectedRoomType}" 
+                      DisplayMemberPath="RoomTypeName"
+                      Margin="0,0,0,15"/>
+
+            <TextBlock Text="Room Status:" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ComboBox SelectedValue="{Binding Room.RoomStatus}" Margin="0,0,0,15">
+                <ComboBoxItem Content="Available" Tag="Available"/>
+                <ComboBoxItem Content="Occupied" Tag="Occupied"/>
+                <ComboBoxItem Content="Maintenance" Tag="Maintenance"/>
+                <ComboBoxItem Content="Reserved" Tag="Reserved"/>
+            </ComboBox>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Save" Width="80" Height="30" Margin="0,0,10,0" 
+                    Background="#4CAF50" Foreground="White"
+                    Command="{Binding SaveCommand}"/>
+            <Button Content="Cancel" Width="80" Height="30" 
+                    Background="#9E9E9E" Foreground="White"
+                    Command="{Binding CancelCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window> 

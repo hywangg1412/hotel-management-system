@@ -60,19 +60,18 @@ namespace WPF.ViewModel
             LoadData();
 
             // Initialize Commands
-            AddCustomerCommand = new RelayCommand(_ => AddCustomer(), _ => CanAddCustomer());
+            AddCustomerCommand = new RelayCommand(_ => AddCustomer());
             UpdateCustomerCommand = new RelayCommand(_ => UpdateCustomer(), _ => CanUpdateCustomer());
             DeleteCustomerCommand = new RelayCommand(_ => DeleteCustomer(), _ => CanDeleteCustomer());
             SearchCustomersCommand = new RelayCommand(_ => SearchCustomers());
 
-            AddRoomCommand = new RelayCommand(_ => AddRoom(), _ => CanAddRoom());
+            AddRoomCommand = new RelayCommand(_ => AddRoom());
             UpdateRoomCommand = new RelayCommand(_ => UpdateRoom(), _ => CanUpdateRoom());
             DeleteRoomCommand = new RelayCommand(_ => DeleteRoom(), _ => CanDeleteRoom());
             SearchRoomsCommand = new RelayCommand(_ => SearchRooms());
 
             GenerateReportCommand = new RelayCommand(_ => GenerateReport());
             RefreshDataCommand = new RelayCommand(_ => RefreshData());
-            ClearFormCommand = new RelayCommand(_ => ClearForm());
         }
 
         #region Customer Management Properties
@@ -93,7 +92,6 @@ namespace WPF.ViewModel
             set
             {
                 _selectedCustomer = value;
-                LoadCustomerToForm();
                 OnPropertyChanged(nameof(SelectedCustomer));
             }
         }
@@ -128,7 +126,6 @@ namespace WPF.ViewModel
             set
             {
                 _selectedRoom = value;
-                LoadRoomToForm();
                 OnPropertyChanged(nameof(SelectedRoom));
             }
         }
@@ -341,7 +338,6 @@ namespace WPF.ViewModel
 
         public ICommand GenerateReportCommand { get; }
         public ICommand RefreshDataCommand { get; }
-        public ICommand ClearFormCommand { get; }
 
         #endregion
 
@@ -349,94 +345,81 @@ namespace WPF.ViewModel
 
         private void LoadData()
         {
-            try
-            {
-                LoadCustomers();
-                LoadRooms();
-                LoadRoomTypes();
-                LoadBookings();
-                GenerateReport();
-            }
-            catch (Exception ex)
-            {
-                Message = $"Error loading data: {ex.Message}";
-            }
+            LoadCustomers();
+            LoadRooms();
+            LoadRoomTypes();
+            LoadBookings();
         }
 
         private void LoadCustomers()
         {
-            var customers = _customerService.GetAll();
-            Customers = new ObservableCollection<Customer>(customers);
+            try
+            {
+                var customers = _customerService.GetAll();
+                Customers = new ObservableCollection<Customer>(customers);
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error loading customers: {ex.Message}";
+            }
         }
 
         private void LoadRooms()
         {
-            var rooms = _roomService.GetAll();
-            Rooms = new ObservableCollection<Room>(rooms);
+            try
+            {
+                var rooms = _roomService.GetAll();
+                Rooms = new ObservableCollection<Room>(rooms);
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error loading rooms: {ex.Message}";
+            }
         }
 
         private void LoadRoomTypes()
         {
-            var roomTypes = _roomTypeService.GetAll();
-            RoomTypes = new ObservableCollection<RoomType>(roomTypes);
+            try
+            {
+                var roomTypes = _roomTypeService.GetAll();
+                RoomTypes = new ObservableCollection<RoomType>(roomTypes);
+            }
+            catch (Exception ex)
+            {
+                Message = $"Error loading room types: {ex.Message}";
+            }
         }
 
         private void LoadBookings()
         {
-            var bookings = _bookingService.GetAll();
-            Bookings = new ObservableCollection<Booking>(bookings);
-        }
-
-        private void LoadCustomerToForm()
-        {
-            if (SelectedCustomer != null)
+            try
             {
-                NewCustomerFullName = SelectedCustomer.FullName;
-                NewCustomerTelephone = SelectedCustomer.Telephone;
-                NewCustomerEmail = SelectedCustomer.Email;
-                NewCustomerBirthday = SelectedCustomer.Birthday;
-                NewCustomerPassword = SelectedCustomer.Password;
+                var bookings = _bookingService.GetAll();
+                Bookings = new ObservableCollection<Booking>(bookings);
             }
-        }
-
-        private void LoadRoomToForm()
-        {
-            if (SelectedRoom != null)
+            catch (Exception ex)
             {
-                NewRoomNumber = SelectedRoom.RoomNumber;
-                NewRoomDescription = SelectedRoom.RoomDescription;
-                NewRoomMaxCapacity = SelectedRoom.RoomMaxCapacity;
-                NewRoomPricePerDate = SelectedRoom.RoomPricePerDate;
-                SelectedRoomType = RoomTypes.FirstOrDefault(rt => rt.RoomTypeId == SelectedRoom.RoomTypeId);
+                Message = $"Error loading bookings: {ex.Message}";
             }
-        }
-
-        private bool CanAddCustomer()
-        {
-            return !string.IsNullOrWhiteSpace(NewCustomerFullName) &&
-                   !string.IsNullOrWhiteSpace(NewCustomerTelephone) &&
-                   !string.IsNullOrWhiteSpace(NewCustomerEmail) &&
-                   !string.IsNullOrWhiteSpace(NewCustomerPassword);
         }
 
         private void AddCustomer()
         {
             try
             {
-                var customer = new Customer
-                {
-                    FullName = NewCustomerFullName,
-                    Telephone = NewCustomerTelephone,
-                    Email = NewCustomerEmail,
-                    Birthday = NewCustomerBirthday,
-                    Password = NewCustomerPassword,
-                    Status = 1 // Active
-                };
+                var dialog = new View.CustomerDialog();
+                var viewModel = new CustomerDialogViewModel();
+                dialog.DataContext = viewModel;
+                dialog.Owner = Application.Current.MainWindow;
 
-                _customerService.Add(customer);
-                LoadCustomers();
-                ClearCustomerForm();
-                Message = "Customer added successfully!";
+                dialog.ShowDialog();
+                
+                if (viewModel.DialogResult == true)
+                {
+                    _customerService.Add(viewModel.Customer);
+                    LoadCustomers();
+                    Message = "Customer added successfully!";
+                }
             }
             catch (Exception ex)
             {
@@ -446,29 +429,28 @@ namespace WPF.ViewModel
 
         private bool CanUpdateCustomer()
         {
-            return SelectedCustomer != null && CanAddCustomer();
+            return SelectedCustomer != null;
         }
 
         private void UpdateCustomer()
         {
             try
             {
-                if (SelectedCustomer == null)
+                if (SelectedCustomer == null) return;
+
+                var dialog = new View.CustomerDialog();
+                var viewModel = new CustomerDialogViewModel(SelectedCustomer);
+                dialog.DataContext = viewModel;
+                dialog.Owner = Application.Current.MainWindow;
+
+                dialog.ShowDialog();
+                
+                if (viewModel.DialogResult == true)
                 {
-                    Message = "Please select a customer to update!";
-                    return;
+                    _customerService.Update(viewModel.Customer);
+                    LoadCustomers();
+                    Message = "Customer updated successfully!";
                 }
-
-                SelectedCustomer.FullName = NewCustomerFullName;
-                SelectedCustomer.Telephone = NewCustomerTelephone;
-                SelectedCustomer.Email = NewCustomerEmail;
-                SelectedCustomer.Birthday = NewCustomerBirthday;
-                SelectedCustomer.Password = NewCustomerPassword;
-
-                _customerService.Update(SelectedCustomer);
-                LoadCustomers();
-                ClearCustomerForm();
-                Message = "Customer updated successfully!";
             }
             catch (Exception ex)
             {
@@ -485,20 +467,18 @@ namespace WPF.ViewModel
         {
             try
             {
-                if (SelectedCustomer == null)
-                {
-                    Message = "Please select a customer to delete!";
-                    return;
-                }
+                if (SelectedCustomer == null) return;
 
-                var result = MessageBox.Show("Are you sure you want to delete this customer?",
-                    "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var result = MessageBox.Show(
+                    $"Are you sure you want to delete customer '{SelectedCustomer.FullName}'?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.Yes)
                 {
                     _customerService.Delete(SelectedCustomer);
                     LoadCustomers();
-                    ClearCustomerForm();
                     Message = "Customer deleted successfully!";
                 }
             }
@@ -515,12 +495,12 @@ namespace WPF.ViewModel
                 if (string.IsNullOrWhiteSpace(CustomerSearchKeyword))
                 {
                     LoadCustomers();
-                    return;
                 }
-
-                var customers = _customerService.Search(CustomerSearchKeyword);
-                Customers = new ObservableCollection<Customer>(customers);
-                Message = $"Found {customers.Count} customers matching '{CustomerSearchKeyword}'";
+                else
+                {
+                    var customers = _customerService.Search(CustomerSearchKeyword);
+                    Customers = new ObservableCollection<Customer>(customers);
+                }
             }
             catch (Exception ex)
             {
@@ -528,33 +508,23 @@ namespace WPF.ViewModel
             }
         }
 
-        private bool CanAddRoom()
-        {
-            return !string.IsNullOrWhiteSpace(NewRoomNumber) &&
-                   !string.IsNullOrWhiteSpace(NewRoomDescription) &&
-                   NewRoomMaxCapacity > 0 &&
-                   NewRoomPricePerDate > 0 &&
-                   SelectedRoomType != null;
-        }
-
         private void AddRoom()
         {
             try
             {
-                var room = new Room
-                {
-                    RoomNumber = NewRoomNumber,
-                    RoomDescription = NewRoomDescription,
-                    RoomMaxCapacity = NewRoomMaxCapacity,
-                    RoomPricePerDate = NewRoomPricePerDate,
-                    RoomTypeId = SelectedRoomType.RoomTypeId,
-                    RoomStatus = "1" // Active
-                };
+                var dialog = new View.RoomDialog();
+                var viewModel = new RoomDialogViewModel();
+                dialog.DataContext = viewModel;
+                dialog.Owner = Application.Current.MainWindow;
 
-                _roomService.Add(room);
-                LoadRooms();
-                ClearRoomForm();
-                Message = "Room added successfully!";
+                dialog.ShowDialog();
+                
+                if (viewModel.DialogResult == true)
+                {
+                    _roomService.Add(viewModel.Room);
+                    LoadRooms();
+                    Message = "Room added successfully!";
+                }
             }
             catch (Exception ex)
             {
@@ -564,29 +534,28 @@ namespace WPF.ViewModel
 
         private bool CanUpdateRoom()
         {
-            return SelectedRoom != null && CanAddRoom();
+            return SelectedRoom != null;
         }
 
         private void UpdateRoom()
         {
             try
             {
-                if (SelectedRoom == null)
+                if (SelectedRoom == null) return;
+
+                var dialog = new View.RoomDialog();
+                var viewModel = new RoomDialogViewModel(SelectedRoom);
+                dialog.DataContext = viewModel;
+                dialog.Owner = Application.Current.MainWindow;
+
+                dialog.ShowDialog();
+                
+                if (viewModel.DialogResult == true)
                 {
-                    Message = "Please select a room to update!";
-                    return;
+                    _roomService.Update(viewModel.Room);
+                    LoadRooms();
+                    Message = "Room updated successfully!";
                 }
-
-                SelectedRoom.RoomNumber = NewRoomNumber;
-                SelectedRoom.RoomDescription = NewRoomDescription;
-                SelectedRoom.RoomMaxCapacity = NewRoomMaxCapacity;
-                SelectedRoom.RoomPricePerDate = NewRoomPricePerDate;
-                SelectedRoom.RoomTypeId = SelectedRoomType.RoomTypeId;
-
-                _roomService.Update(SelectedRoom);
-                LoadRooms();
-                ClearRoomForm();
-                Message = "Room updated successfully!";
             }
             catch (Exception ex)
             {
@@ -603,20 +572,18 @@ namespace WPF.ViewModel
         {
             try
             {
-                if (SelectedRoom == null)
-                {
-                    Message = "Please select a room to delete!";
-                    return;
-                }
+                if (SelectedRoom == null) return;
 
-                var result = MessageBox.Show("Are you sure you want to delete this room?",
-                    "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var result = MessageBox.Show(
+                    $"Are you sure you want to delete room '{SelectedRoom.RoomNumber}'?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.Yes)
                 {
                     _roomService.Delete(SelectedRoom);
                     LoadRooms();
-                    ClearRoomForm();
                     Message = "Room deleted successfully!";
                 }
             }
@@ -633,12 +600,12 @@ namespace WPF.ViewModel
                 if (string.IsNullOrWhiteSpace(RoomSearchKeyword))
                 {
                     LoadRooms();
-                    return;
                 }
-
-                var rooms = _roomService.Search(RoomSearchKeyword);
-                Rooms = new ObservableCollection<Room>(rooms);
-                Message = $"Found {rooms.Count} rooms matching '{RoomSearchKeyword}'";
+                else
+                {
+                    var rooms = _roomService.Search(RoomSearchKeyword);
+                    Rooms = new ObservableCollection<Room>(rooms);
+                }
             }
             catch (Exception ex)
             {
@@ -650,19 +617,14 @@ namespace WPF.ViewModel
         {
             try
             {
-                var bookings = _bookingService.GetAll();
-                var filteredBookings = bookings.Where(b => 
-                    b.StartDate >= ReportStartDate && 
-                    b.EndDate <= ReportEndDate)
-                    .OrderByDescending(b => b.TotalPrice)
-                    .ToList();
+                var bookings = _bookingService.GetBookingsByDateRange(ReportStartDate, ReportEndDate);
+                var sortedBookings = bookings.OrderByDescending(b => b.TotalPrice).ToList();
+                
+                Bookings = new ObservableCollection<Booking>(sortedBookings);
+                TotalRevenue = sortedBookings.Sum(b => b.TotalPrice);
+                TotalBookings = sortedBookings.Count;
 
-                Bookings = new ObservableCollection<Booking>(filteredBookings);
-                TotalRevenue = filteredBookings.Sum(b => b.TotalPrice);
-                TotalBookings = filteredBookings.Count;
-
-                Message = $"Report generated for period {ReportStartDate:dd/MM/yyyy} to {ReportEndDate:dd/MM/yyyy}. " +
-                         $"Total Revenue: ${TotalRevenue:N2}, Total Bookings: {TotalBookings}";
+                Message = $"Report generated for period {ReportStartDate:dd/MM/yyyy} to {ReportEndDate:dd/MM/yyyy}";
             }
             catch (Exception ex)
             {
@@ -674,38 +636,6 @@ namespace WPF.ViewModel
         {
             LoadData();
             Message = "Data refreshed successfully!";
-        }
-
-        private void ClearForm()
-        {
-            ClearCustomerForm();
-            ClearRoomForm();
-        }
-
-        private void ClearCustomerForm()
-        {
-            NewCustomerFullName = string.Empty;
-            NewCustomerTelephone = string.Empty;
-            NewCustomerEmail = string.Empty;
-            NewCustomerBirthday = DateOnly.FromDateTime(DateTime.Today);
-            NewCustomerPassword = string.Empty;
-            SelectedCustomer = null;
-        }
-
-        private void ClearRoomForm()
-        {
-            NewRoomNumber = string.Empty;
-            NewRoomDescription = string.Empty;
-            NewRoomMaxCapacity = 1;
-            NewRoomPricePerDate = 0;
-            SelectedRoomType = null;
-            SelectedRoom = null;
-        }
-
-        // Method to clear password box (will be called from View)
-        public void ClearPasswordBox()
-        {
-            NewCustomerPassword = string.Empty;
         }
 
         #endregion

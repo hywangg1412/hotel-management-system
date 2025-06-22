@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 using WPF.ViewModel;
+using System.Windows;
 
 namespace WPF.View
 {
@@ -9,10 +10,15 @@ namespace WPF.View
         {
             InitializeComponent();
             DataContext = new ViewModel.LoginViewModel(mainWindowViewModel);
-        }
-        public LoginView()
-        {
-            InitializeComponent();
+            
+            // Handle PasswordBox binding
+            PasswordBox.PasswordChanged += (sender, e) =>
+            {
+                if (DataContext is LoginViewModel viewModel)
+                {
+                    viewModel.Password = PasswordBox.Password;
+                }
+            };
         }
     }
 }

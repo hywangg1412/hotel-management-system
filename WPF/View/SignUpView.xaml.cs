@@ -7,12 +7,11 @@ namespace WPF.View
     {
         private readonly SignUpViewModel _signupViewModel;
 
-        public SignUpView(ViewModel.MainWindowViewModel mainVM)
+        public SignUpView(MainWindowViewModel mainVM)
         {
             InitializeComponent();
             _signupViewModel = new SignUpViewModel(mainVM);
             DataContext = _signupViewModel;
-
             this.Loaded += SignupView_Loaded;
         }
 

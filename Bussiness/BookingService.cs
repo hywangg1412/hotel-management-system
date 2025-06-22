@@ -114,6 +114,36 @@ namespace Bussiness
             }
         }
 
+        public List<Booking> GetBookingsByDateRange(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                AppLogger.LogInformation($"Getting bookings from {startDate:yyyy-MM-dd} to {endDate:yyyy-MM-dd}");
+                var result = _bookingRepository.GetBookingsByDateRange(startDate, endDate);
+                AppLogger.LogInformation($"Found {result.Count} bookings in date range");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                AppLogger.LogError(ex, $"Error getting bookings by date range: {startDate:yyyy-MM-dd} to {endDate:yyyy-MM-dd}");
+                throw;
+            }
+        }
 
+        public List<Booking> GetBookingsByCustomer(int customerId)
+        {
+            try
+            {
+                AppLogger.LogInformation($"Getting bookings for customer ID: {customerId}");
+                var result = _bookingRepository.GetBookingsByCustomer(customerId);
+                AppLogger.LogInformation($"Found {result.Count} bookings for customer ID: {customerId}");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                AppLogger.LogError(ex, $"Error getting bookings for customer ID: {customerId}");
+                throw;
+            }
+        }
     }
 }

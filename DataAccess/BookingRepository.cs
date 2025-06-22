@@ -10,7 +10,47 @@ namespace DataAccess
 
         public BookingRepository()
         {
-            _bookingList = new List<Booking>();
+            if (_bookingList == null)
+            {
+                _bookingList = new List<Booking>();
+                
+                // Add sample data
+                var sampleBookings = new List<Booking>
+                {
+                    new Booking
+                    {
+                        BookingID = 1,
+                        CustomerID = 1,
+                        RoomID = 1,
+                        StartDate = DateTime.Today.AddDays(-10),
+                        EndDate = DateTime.Today.AddDays(-7),
+                        TotalPrice = 300.00m,
+                        Status = "Completed"
+                    },
+                    new Booking
+                    {
+                        BookingID = 2,
+                        CustomerID = 1,
+                        RoomID = 2,
+                        StartDate = DateTime.Today.AddDays(-5),
+                        EndDate = DateTime.Today.AddDays(-2),
+                        TotalPrice = 400.00m,
+                        Status = "Completed"
+                    },
+                    new Booking
+                    {
+                        BookingID = 3,
+                        CustomerID = 1,
+                        RoomID = 1,
+                        StartDate = DateTime.Today.AddDays(5),
+                        EndDate = DateTime.Today.AddDays(8),
+                        TotalPrice = 300.00m,
+                        Status = "Confirmed"
+                    }
+                };
+                
+                _bookingList.AddRange(sampleBookings);
+            }
         }
 
         public void Add(Booking entity)

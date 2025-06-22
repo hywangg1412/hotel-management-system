@@ -10,7 +10,57 @@ namespace DataAccess
 
         public RoomRepository()
         {
-            _roomList = new List<Room>();
+            if (_roomList == null)
+            {
+                _roomList = new List<Room>();
+                
+                // Add sample data
+                var sampleRooms = new List<Room>
+                {
+                    new Room
+                    {
+                        RoomId = 1,
+                        RoomNumber = "101",
+                        RoomDescription = "Standard Single Room with city view",
+                        RoomMaxCapacity = 2,
+                        RoomStatus = "Available",
+                        RoomPricePerDate = 100.00m,
+                        RoomTypeId = 1
+                    },
+                    new Room
+                    {
+                        RoomId = 2,
+                        RoomNumber = "102",
+                        RoomDescription = "Deluxe Double Room with balcony",
+                        RoomMaxCapacity = 4,
+                        RoomStatus = "Available",
+                        RoomPricePerDate = 150.00m,
+                        RoomTypeId = 2
+                    },
+                    new Room
+                    {
+                        RoomId = 3,
+                        RoomNumber = "201",
+                        RoomDescription = "Suite with jacuzzi and ocean view",
+                        RoomMaxCapacity = 6,
+                        RoomStatus = "Available",
+                        RoomPricePerDate = 300.00m,
+                        RoomTypeId = 3
+                    },
+                    new Room
+                    {
+                        RoomId = 4,
+                        RoomNumber = "202",
+                        RoomDescription = "Family Room with connecting rooms",
+                        RoomMaxCapacity = 8,
+                        RoomStatus = "Maintenance",
+                        RoomPricePerDate = 250.00m,
+                        RoomTypeId = 2
+                    }
+                };
+                
+                _roomList.AddRange(sampleRooms);
+            }
         }
         public void Add(Room entity)
         {

@@ -30,28 +30,11 @@ namespace WPF.View
             _mainWindowViewModel = mainWindowViewModel;
             _adminViewModel = new AdminViewModel();
             DataContext = _adminViewModel;
-
-            // Set up password binding for customer form
-            CustomerPasswordBox.PasswordChanged += CustomerPasswordBox_PasswordChanged;
         }
 
         public AdminView()
         {
             InitializeComponent();
-        }
-
-        private void CustomerPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            if (_adminViewModel != null)
-            {
-                _adminViewModel.NewCustomerPassword = CustomerPasswordBox.Password;
-            }
-        }
-
-        // Method to clear password box
-        public void ClearPasswordBox()
-        {
-            CustomerPasswordBox.Password = string.Empty;
         }
 
         private void LogoutButton_Click(object sender, RoutedEventArgs e)

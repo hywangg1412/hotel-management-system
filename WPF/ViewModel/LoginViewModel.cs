@@ -1,4 +1,5 @@
 ﻿using Bussiness;
+using Common;
 using DataAccess.Context.Common;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -20,6 +21,17 @@ namespace WPF.ViewModel
             _customerService = new CustomerService();
             LoginCommand = new RelayCommand(_ => Login());
             SignupCommand = new RelayCommand(_ => _mainWindowViewModel.ShowSignupView());
+
+            // Debug: Check if AppConfig is working
+            try
+            {
+                AppLogger.LogInformation($"AppConfig loaded - Admin Email: {AppConfig.AdminEmail}");
+                AppLogger.LogInformation($"AppConfig loaded - User Email: {AppConfig.UserEmail}");
+            }
+            catch (Exception ex)
+            {
+                AppLogger.LogError($"Error loading AppConfig: {ex.Message}");
+            }
         }
 
         public string Email
@@ -59,14 +71,18 @@ namespace WPF.ViewModel
         {
             try
             {
-                if (Email == Common.AppConfig.AdminEmail && Password == Common.AppConfig.AdminPassword)
+                // Debug logging
+                AppLogger.LogInformation($"Login attempt - Email: {Email}");
+                AppLogger.LogInformation($"Admin Email from config: {AppConfig.AdminEmail}");
+                AppLogger.LogInformation($"User Email from config: {AppConfig.UserEmail}");
+
+                if (Email == AppConfig.AdminEmail && Password == AppConfig.AdminPassword)
                 {
                     LoginResult = "Admin login successful!";
                     _mainWindowViewModel.ShowAdminDashboard();
                 }
                 else
                 {
-                    // Try customer login
                     var customer = _customerService.Login(Email, Password);
                     if (customer != null)
                     {

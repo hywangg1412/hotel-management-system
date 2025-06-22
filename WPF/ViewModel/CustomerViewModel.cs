@@ -250,9 +250,8 @@ namespace WPF.ViewModel
         {
             try
             {
-                var allBookings = _bookingService.GetAll();
-                var customerBookings = allBookings.Where(b => b.CustomerID == _currentCustomer.UserID).ToList();
-                Bookings = new ObservableCollection<Booking>(customerBookings);
+                var bookings = _bookingService.GetBookingsByCustomer(CurrentCustomer.UserID);
+                Bookings = new ObservableCollection<Booking>(bookings);
             }
             catch (Exception ex)
             {
